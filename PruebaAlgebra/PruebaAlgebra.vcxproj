@@ -24,6 +24,7 @@
     <ProjectGuid>{877238dd-e0ac-41ff-99d5-aca7d410cef6}</ProjectGuid>
     <RootNamespace>PruebaAlgebra</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Algebra_TP2</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
