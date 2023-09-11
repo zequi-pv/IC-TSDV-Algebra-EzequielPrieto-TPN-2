@@ -1,7 +1,6 @@
 #include <iostream>
 #include <raylib.h>
 
-
 using namespace std;
 
 void GetMagnitude(Vector3 endPos, float& magnitude);
@@ -9,31 +8,26 @@ void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular);
 void NormalizeVector(Vector3& vector);
 void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void GetVertical(Vector3 endPos, Vector3& vertical);
-
-
+void DrawInstructions();
 
 void main()
 {
-    Vector2 magnitude1Pos = { 10,10 };
-    Vector2 magnitude2Pos = { 10,50 };
-    Vector2 magnitude3Pos = { 10,90 };
-    //int key;
+    Vector2 magnitude1Pos = { 10,30 };
 
+    //Vector A datos
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
     Vector3 endPos = { 5.0f, 0.0f, 0.0f };
     Color color = RED;
 
-    Vector3 perpendicular = { 0.0f, 0.0f, 0.0f };
-    Vector3 vertical = { 0.0f, 0.0f, 0.0f };
+    Vector3 perpendicular = { 0.0f, 0.0f, 0.0f }; //Vector B
+    Vector3 vertical = { 0.0f, 0.0f, 0.0f }; //Vector C
 
     int userInput;
 
-    float magnitude = 1;
-    float magnitude2 = 1;
-    float magnitude3 = 1;
+    float magnitude = 1; //A magnitude
+    float magnitude2 = 1; //B magnitude
+    float magnitude3 = 1; //C magnitude
 
-
-    
     bool starting = true;
 
     SetExitKey(27);
@@ -41,29 +35,22 @@ void main()
     Camera3D camera;
 
     camera = { 0 };
-    camera.position = { 0.0f, 13.0f, 0.0f };  // Camera position
+    camera.position = { 0.0f, 13.0f, 0.0f };   // Camera position
     camera.target = { 0.0f, 0.0f, 0.0f };      // Camera looking at point
     camera.up = { 0.0f, 0.5f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 1000.0f;                                // Camera field-of-view Y
+    camera.fovy = 1000.0f;                     // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;
 
     SetTargetFPS(60);
 
+    GetMagnitude(endPos, magnitude); //A magnitude
+    GetFirstPerpendicular(endPos, perpendicular); //Crea vector B
 
-    GetMagnitude(endPos, magnitude);
-    GetFirstPerpendicular(endPos, perpendicular);
-    GetMagnitude(perpendicular, magnitude2);
-    NormalizeVector(perpendicular);
-    GetMagnitude(perpendicular, magnitude2);
-    SetNewMagnitude(perpendicular, magnitude);
-    GetMagnitude(perpendicular, magnitude2);
+    SetNewMagnitude(perpendicular, magnitude); //Normaliza y multiplica magnitud Vector B por la magnitud Vector A
+    GetMagnitude(perpendicular, magnitude2); //Magnitud actual de Vector B
 
-    GetVertical(endPos, vertical);
-    GetMagnitude(vertical, magnitude3);
-    NormalizeVector(vertical);
+    GetVertical(endPos, vertical); //Crea Vector C
     
-
-
     camera.position = startPos;
 
     camera.position.x += 2.0f;
@@ -72,8 +59,8 @@ void main()
 
     camera.target = startPos;
 
-
-    cout << endl << magnitude << endl << magnitude2 << endl << magnitude3 << endl;
+    cout << "\nMagnitud A: " << magnitude << endl;
+    cout << "\nMagnitud B: " << magnitude2 << endl;
 
     while (!WindowShouldClose())
     {
@@ -81,19 +68,35 @@ void main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        
-        DrawText(TextFormat("Vector magnitude: %01i", magnitude), magnitude1Pos.x, magnitude1Pos.y, 30, BLACK);
+        DrawText(TextFormat("Vector magnitude: %01i", magnitude), magnitude1Pos.x, magnitude1Pos.y, 15, BLACK);
+
         int key;
+
+        BeginMode3D(camera);
+
+        DrawLine3D(startPos, endPos, color);
+        DrawLine3D(startPos, perpendicular, GREEN);
+        DrawLine3D(startPos, vertical, BLUE);
+
+        EndMode3D();
+
         if (starting)
         {
-            DrawText(TextFormat("Ingrese el valor deseado: "), ((float)GetScreenWidth() / 2), ((float)GetScreenHeight() / 2), 13, BLACK);
-            
+            //DrawText(TextFormat("Ingrese el valor deseado: "), ((float)GetScreenWidth() / 2), ((float)GetScreenHeight() / 2), 13, BLACK);
+            DrawInstructions();
+
             key = GetCharPressed() - 48;
+
             //DrawText(TextFormat("Key: %01i", key), ((float)GetScreenWidth() / 2), ((float)GetScreenHeight() / 2), 13, BLACK);
+
             if (key > 1 && key < 10)
             {
                 SetNewMagnitude(vertical, magnitude / key);
-                cout << key << endl << magnitude3 << endl;
+                GetMagnitude(vertical, magnitude3);
+
+                cout << "\nInput: " << key << endl;
+                cout << "\nMagnitud C: " << magnitude3 << endl;
+
                 starting = false;
             }
            
@@ -104,23 +107,22 @@ void main()
             {
                 camera.target = startPos;
             }
-
         }
    
-        BeginMode3D(camera);
+        //BeginMode3D(camera);
 
-        DrawLine3D(startPos, endPos, color);
-        DrawLine3D(startPos, perpendicular, GREEN);
-        DrawLine3D(startPos, vertical, BLUE);
+        //DrawLine3D(startPos, endPos, color);
+        //DrawLine3D(startPos, perpendicular, GREEN);
+        //DrawLine3D(startPos, vertical, BLUE);
 
-        EndMode3D();
+        //EndMode3D();
+
         DrawFPS(10, 10);
         EndDrawing();
     }
 
     CloseWindow();
 }
-
 
 void GetMagnitude(Vector3 endPos, float& magnitude)
 {
@@ -147,7 +149,7 @@ void NormalizeVector(Vector3& vector)
 
 void SetNewMagnitude(Vector3& vector, float designedMagnitude)
 {
-    NormalizeVector( vector);
+    NormalizeVector(vector);
 
     vector.x *= designedMagnitude;
     vector.y *= designedMagnitude;
@@ -160,7 +162,25 @@ void GetVertical(Vector3 endPos, Vector3& vertical)
     vertical.x = -1 *endPos.z;
 }
 
-void SetHeight(Vector3& vector, float designedMagnitude)
+void DrawInstructions()
 {
+    int recPosX = GetScreenWidth() / 3 * 2 - 40;
+    int recPosY = GetScreenHeight() / 12;
+    int recWidth = GetScreenWidth() / 3 - 20;
+    int recHeight = GetScreenHeight() / 12 * 10;
+    Color recColor = BLACK;
 
+    int textX = recPosX + 10;
+    int fontSize = 18;
+    Color textColor = RAYWHITE;
+
+    int textY1 = recPosY + 10;
+    int textY2 = recPosY + 30;
+    int textY3 = recPosY + 70;
+
+    DrawRectangle(recPosX, recPosY, recWidth, recHeight, recColor);
+
+    DrawText("Choose a value for n to", textX, textY1, fontSize, textColor);
+    DrawText("set Vector C magnitude:", textX, textY2, fontSize, textColor);
+    DrawText("(1/n * Vector A magnitude)", textX, textY3, fontSize, textColor);
 }
