@@ -4,9 +4,9 @@
 
 using namespace std;
 
-void GetMagnitude(Vector3 startPos, Vector3 endPos, float& magnitude);
+void GetMagnitude(Vector3 endPos, float& magnitude);
 void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular);
-void NormalizeVector(Vector3& vector, float vectorMagnitude);
+void NormalizeVector(Vector3& vector);
 void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 
@@ -28,9 +28,9 @@ void main()
 
     int userInput;
 
-    float magnitude;
-    float magnitude2;
-    float magnitude3;
+    float magnitude = 1;
+    float magnitude2 = 1;
+    float magnitude3 = 1;
 
 
     
@@ -50,17 +50,17 @@ void main()
     SetTargetFPS(60);
 
 
-    GetMagnitude(startPos, endPos, magnitude);
+    GetMagnitude(endPos, magnitude);
     GetFirstPerpendicular(endPos, perpendicular);
-    GetMagnitude(startPos, perpendicular, magnitude2);
-    NormalizeVector(perpendicular, magnitude2);
-    GetMagnitude(startPos, perpendicular, magnitude2);
+    GetMagnitude(perpendicular, magnitude2);
+    NormalizeVector(perpendicular);
+    GetMagnitude(perpendicular, magnitude2);
     SetNewMagnitude(perpendicular, magnitude);
-    GetMagnitude(startPos, perpendicular, magnitude2);
+    GetMagnitude(perpendicular, magnitude2);
 
     GetVertical(endPos, vertical);
-    GetMagnitude(startPos, vertical, magnitude3);
-    NormalizeVector(vertical, magnitude3);
+    GetMagnitude(vertical, magnitude3);
+    NormalizeVector(vertical);
     
 
 
@@ -92,7 +92,7 @@ void main()
             //DrawText(TextFormat("Key: %01i", key), ((float)GetScreenWidth() / 2), ((float)GetScreenHeight() / 2), 13, BLACK);
             if (key > 1 && key < 10)
             {
-                SetNewMagnitude(vertical, (magnitude / (float)key));
+                SetNewMagnitude(vertical, magnitude / key);
                 cout << key << endl << magnitude3 << endl;
                 starting = false;
             }
@@ -122,9 +122,9 @@ void main()
 }
 
 
-void GetMagnitude(Vector3 startPos, Vector3 endPos, float& magnitude)
+void GetMagnitude(Vector3 endPos, float& magnitude)
 {
-    magnitude = sqrt(pow(endPos.x - startPos.x, 2.0f) + pow(endPos.y - startPos.y, 2.0f) + pow(endPos.z - startPos.z, 2.0f));
+    magnitude = sqrt(pow(endPos.x, 2.0f) + pow(endPos.y, 2.0f) + pow(endPos.z, 2.0f));
 }
 
 void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular)
@@ -134,8 +134,12 @@ void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular)
    
 }
 
-void NormalizeVector(Vector3& vector,float vectorMagnitude)
+void NormalizeVector(Vector3& vector)
 {
+    float vectorMagnitude;
+
+    GetMagnitude(vector, vectorMagnitude);
+
     vector.x /= vectorMagnitude;
     vector.y /= vectorMagnitude;
     vector.z /= vectorMagnitude;
@@ -143,6 +147,8 @@ void NormalizeVector(Vector3& vector,float vectorMagnitude)
 
 void SetNewMagnitude(Vector3& vector, float designedMagnitude)
 {
+    NormalizeVector( vector);
+
     vector.x *= designedMagnitude;
     vector.y *= designedMagnitude;
     vector.z *= designedMagnitude;
