@@ -72,7 +72,7 @@ void main()
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawText(TextFormat("Vector A and B magnitude: %01i", magnitudeA), magnitudeTextPos.x, magnitudeTextPos.y, 15, BLACK);
+        DrawText(TextFormat("Vector A and B magnitude: %.2f", magnitudeA), magnitudeTextPos.x, magnitudeTextPos.y, 15, BLACK);
         DrawText("Vector A: RED", vectorATextPos.x, vectorATextPos.y, 15, BLACK);
         DrawText("Vector B: GREEN", vectorBTextPos.x, vectorBTextPos.y, 15, BLACK);
         DrawText("Vector C: BLUE", vectorCTextPos.x, vectorCTextPos.y, 15, BLACK);
@@ -102,8 +102,7 @@ void main()
                 cout << "\nMagnitud C: " << magnitudeC << endl;
 
                 starting = false;
-            }
-           
+            }  
         }
         else
         {
@@ -173,10 +172,27 @@ void DrawInstructions()
     int textY1 = recPosY + 10;
     int textY2 = recPosY + 30;
     int textY3 = recPosY + 70;
+    int textY4 = recPosY + 110;
+    int textY5 = recPosY + 140;
+    int textY6 = recPosY + 170;
+    int textY7 = recPosY + 200;
+    int textY8 = recPosY + 230;
+    int textY9 = recPosY + 260;
+    int textY10 = recPosY + 290;
+    int textY11 = recPosY + 320;
 
     DrawRectangle(recPosX, recPosY, recWidth, recHeight, recColor);
 
     DrawText("Choose a value for n to", textX, textY1, fontSize, textColor);
     DrawText("set Vector C magnitude:", textX, textY2, fontSize, textColor);
     DrawText("(1/n * Vector A magnitude)", textX, textY3, fontSize, textColor);
+
+    DrawText("Press key 2 = 1/2", textX, textY4, fontSize, textColor);
+    DrawText("Press key 3 = 1/3", textX, textY5, fontSize, textColor);
+    DrawText("Press key 4 = 1/4", textX, textY6, fontSize, textColor);
+    DrawText("Press key 5 = 1/5", textX, textY7, fontSize, textColor);
+    DrawText("Press key 6 = 1/6", textX, textY8, fontSize, textColor);
+    DrawText("Press key 7 = 1/7", textX, textY9, fontSize, textColor);
+    DrawText("Press key 8 = 1/8", textX, textY10, fontSize, textColor);
+    DrawText("Press key 9 = 1/9", textX, textY11, fontSize, textColor);
 }
