@@ -5,9 +5,10 @@
 using namespace std;
 
 void GetMagnitude(Vector3 startPos, Vector3 endPos, float& magnitude);
-void GetFirstPerpendicular(Vector3 startPos, Vector3 endPos, Vector3& perpendicular);
+void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular);
 void NormalizeVector(Vector3& vector, float vectorMagnitude);
 void SetNewMagnitude(Vector3& vector, float designedMagnitude);
+void GetVertical(Vector3 endPos, Vector3& vertical);
 
 
 
@@ -22,12 +23,14 @@ void main()
     Vector3 endPos = { 5.0f, 0.0f, 0.0f };
     Color color = RED;
 
-    Vector3 perpendicular;
+    Vector3 perpendicular = { 0.0f, 0.0f, 0.0f };
+    Vector3 vertical = { 0.0f, 0.0f, 0.0f };
 
     int userInput;
 
     float magnitude;
     float magnitude2;
+    float magnitude3;
 
 
     
@@ -48,12 +51,18 @@ void main()
 
 
     GetMagnitude(startPos, endPos, magnitude);
-    GetFirstPerpendicular(startPos, endPos, perpendicular);
+    GetFirstPerpendicular(endPos, perpendicular);
     GetMagnitude(startPos, perpendicular, magnitude2);
     NormalizeVector(perpendicular, magnitude2);
     GetMagnitude(startPos, perpendicular, magnitude2);
     SetNewMagnitude(perpendicular, magnitude);
     GetMagnitude(startPos, perpendicular, magnitude2);
+
+    GetVertical(endPos, vertical);
+    GetMagnitude(startPos, vertical, magnitude3);
+    NormalizeVector(vertical, magnitude3);
+    SetNewMagnitude(vertical, magnitude3);
+
 
     Vector3 camPos = startPos;
 
@@ -65,45 +74,44 @@ void main()
     camera.target = startPos;
 
 
-    cout << endl << magnitude << endl << magnitude2 << endl;
+    cout << endl << magnitude << endl << magnitude2 << endl << magnitude3 << endl;
 
     while (!WindowShouldClose())
     {
         UpdateCamera(&camera, CAMERA_FREE);
         BeginDrawing();
+        ClearBackground(RAYWHITE);
 
-        DrawLine3D(startPos, endPos, color);
-        DrawLine3D(startPos, perpendicular, GREEN);
-        DrawText(TextFormat("Vector magnitude: %01i", magnitude), magnitude1Pos.x, magnitude1Pos.y, 30, BLACK);
         
+        DrawText(TextFormat("Vector magnitude: %01i", magnitude), magnitude1Pos.x, magnitude1Pos.y, 30, BLACK);
+        int key;
         if (starting)
         {
             DrawText(TextFormat("Ingrese el valor deseado: "), ((float)GetScreenWidth() / 2), ((float)GetScreenHeight() / 2), 13, BLACK);
             
-            for (int key = 0; key < 9; key++)
+            key = GetCharPressed() - 48;
+            //DrawText(TextFormat("Key: %01i", key), ((float)GetScreenWidth() / 2), ((float)GetScreenHeight() / 2), 13, BLACK);
+            if (key > 1 && key < 10)
             {
-                if (IsKeyDown(key))
-                {    
-                    userInput = key;
-                    starting = false;
-             
-                }
-            }   
+                
+                starting = false;
+            }
+           
         }
         else
         {
+            if (IsKeyDown('Z'))
+            {
+                camera.target = startPos;
+            }
 
         }
-
-        if (IsKeyDown('Z'))
-        {
-            camera.target = startPos;
-        }
-
-        ClearBackground(RAYWHITE);
+   
         BeginMode3D(camera);
 
-        
+        DrawLine3D(startPos, endPos, color);
+        DrawLine3D(startPos, perpendicular, GREEN);
+        DrawLine3D(startPos, vertical, BLUE);
 
         EndMode3D();
         DrawFPS(10, 10);
@@ -119,7 +127,7 @@ void GetMagnitude(Vector3 startPos, Vector3 endPos, float& magnitude)
     magnitude = sqrt(pow(endPos.x - startPos.x, 2.0f) + pow(endPos.y - startPos.y, 2.0f) + pow(endPos.z - startPos.z, 2.0f));
 }
 
-void GetFirstPerpendicular(Vector3 startPos, Vector3 endPos, Vector3& perpendicular)
+void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular)
 {
     perpendicular.x = endPos.y;
     perpendicular.y = -1 * endPos.x;
@@ -138,6 +146,12 @@ void SetNewMagnitude(Vector3& vector, float designedMagnitude)
     vector.x *= designedMagnitude;
     vector.y *= designedMagnitude;
     vector.z *= designedMagnitude;
+}
+
+void GetVertical(Vector3 endPos, Vector3& vertical)
+{
+    vertical.z = endPos.x;
+    vertical.x = -1 *endPos.z;
 }
 
 void SetHeight(Vector3& vector, float designedMagnitude)
