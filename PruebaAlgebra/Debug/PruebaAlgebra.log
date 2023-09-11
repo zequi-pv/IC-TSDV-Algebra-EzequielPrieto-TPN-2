@@ -1,8 +1,8 @@
 ﻿  Main.cpp
 D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(16,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
-D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(86,97): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(86,80): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(90,121): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(90,89): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(85,97): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(85,80): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(89,121): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(89,89): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 D:\Facultad\Algebra\TP2Algebra\PruebaAlgebra\Main.cpp(29,9): warning C4101: 'userInput': unreferenced local variable
   PruebaAlgebra.vcxproj -> D:\Facultad\Algebra\TP2Algebra\Debug\Algebra_TP2.exe

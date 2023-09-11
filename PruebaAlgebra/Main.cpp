@@ -61,16 +61,15 @@ void main()
     GetVertical(endPos, vertical);
     GetMagnitude(startPos, vertical, magnitude3);
     NormalizeVector(vertical, magnitude3);
-    SetNewMagnitude(vertical, magnitude3);
+    
 
 
-    Vector3 camPos = startPos;
+    camera.position = startPos;
 
-    camPos.x += 2.0f;
-    camPos.y += 2.0f;
-    camPos.z += 2.0f;
+    camera.position.x += 2.0f;
+    camera.position.y += 2.0f;
+    camera.position.z += 2.0f;
 
-    camera.position = camPos;
     camera.target = startPos;
 
 
@@ -93,7 +92,8 @@ void main()
             //DrawText(TextFormat("Key: %01i", key), ((float)GetScreenWidth() / 2), ((float)GetScreenHeight() / 2), 13, BLACK);
             if (key > 1 && key < 10)
             {
-                
+                SetNewMagnitude(vertical, (magnitude / (float)key));
+                cout << key << endl << magnitude3 << endl;
                 starting = false;
             }
            
