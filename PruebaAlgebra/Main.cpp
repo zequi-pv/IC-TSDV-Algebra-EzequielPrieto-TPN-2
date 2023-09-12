@@ -1,5 +1,7 @@
 #include <iostream>
 #include <raylib.h>
+#include "raymath.h"
+
 
 using namespace std;
 
@@ -9,6 +11,11 @@ void NormalizeVector(Vector3& vector);
 void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
+void SetBaseSize(Vector3& size, float magnitudeA, float magnitudeB, float magnitudeC);
+void DrawPiramid(Vector3 size, float magnitudeA, float magnitudeB, float magnitudeC, float xRotation);
+void CameraHandler(Camera3D& camera, int& cameraMode);
+void GetAngle(Vector3 vectorA, float magnitudeA, float& xRotation);
+
 
 void main()
 {
@@ -20,30 +27,43 @@ void main()
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
     //Vector A datos
-    Vector3 vectorA = { 5.0f, 0.0f, 0.0f };
     Color color = RED;
 
+    Vector3 vectorA = { (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8) };
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
-    int userInput;
+   
+
+    Vector3 size = { 0.0f, 0.0f, 0.0f };
+
+    int key;
+    
 
     float magnitudeA = 1; //A magnitude
     float magnitudeB = 1; //B magnitude
     float magnitudeC = 1; //C magnitude
 
+    float xRotation;
+
     bool starting = true;
 
     SetExitKey(27);
     InitWindow(800, 450, "Algebra TP2");
-    Camera3D camera;
+   
+    Model model;
 
-    camera = { 0 };
-    camera.position = { 0.0f, 13.0f, 0.0f };   // Camera position
-    camera.target = { 0.0f, 0.0f, 0.0f };      // Camera looking at point
-    camera.up = { 0.0f, 0.5f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 1000.0f;                     // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;
+    Camera camera = { 0 };
+    camera.position = { 0.0f, 2.0f, 4.0f };    // Camera position
+    camera.target = { 0.0f, 2.0f, 0.0f };      // Camera looking at point
+    camera.up = { 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    camera.fovy = 60.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+
+    int cameraMode = CAMERA_FIRST_PERSON;
+
+    DisableCursor();
+
 
     SetTargetFPS(60);
 
@@ -55,20 +75,20 @@ void main()
 
     GetVertical(vectorA, vectorC); //Crea Vector C
     
-    camera.position = startPos;
+   /* camera.position = startPos;
 
     camera.position.x += 2.0f;
     camera.position.y += 2.0f;
     camera.position.z += 2.0f;
 
-    camera.target = startPos;
+    camera.target = startPos;*/
 
     cout << "\nMagnitud A: " << magnitudeA << endl;
     cout << "\nMagnitud B: " << magnitudeB << endl;
 
     while (!WindowShouldClose())
     {
-        UpdateCamera(&camera, CAMERA_FREE);
+        CameraHandler(camera, cameraMode);
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -77,7 +97,7 @@ void main()
         DrawText("Vector B: GREEN", vectorBTextPos.x, vectorBTextPos.y, 15, BLACK);
         DrawText("Vector C: BLUE", vectorCTextPos.x, vectorCTextPos.y, 15, BLACK);
 
-        int key;
+        
 
         BeginMode3D(camera);
 
@@ -101,22 +121,92 @@ void main()
                 cout << "\nInput: " << key << endl;
                 cout << "\nMagnitud C: " << magnitudeC << endl;
 
+                GetAngle(vectorA, magnitudeA, xRotation);
+
+                cout << xRotation;
+
                 starting = false;
             }  
         }
         else
         {
+            BeginMode3D(camera);
+            SetBaseSize(size, magnitudeA, magnitudeB, magnitudeC);
+            DrawPiramid(size, magnitudeA, magnitudeB, magnitudeC, xRotation);
+
             if (IsKeyDown('Z'))
             {
                 camera.target = startPos;
             }
+            EndMode3D();
         }
 
+        
         DrawFPS(10, 10);
         EndDrawing();
     }
 
     CloseWindow();
+}
+
+void CameraHandler(Camera3D& camera, int& cameraMode)
+{
+    if (IsKeyPressed(KEY_ONE))
+    {
+        cameraMode = CAMERA_FREE;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    if (IsKeyPressed(KEY_TWO))
+    {
+        cameraMode = CAMERA_FIRST_PERSON;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    if (IsKeyPressed(KEY_THREE))
+    {
+        cameraMode = CAMERA_THIRD_PERSON;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    if (IsKeyPressed(KEY_FOUR))
+    {
+        cameraMode = CAMERA_ORBITAL;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    // Switch camera projection
+    if (IsKeyPressed(KEY_P))
+    {
+        if (camera.projection == CAMERA_PERSPECTIVE)
+        {
+            // Create isometric view
+            cameraMode = CAMERA_THIRD_PERSON;
+            // Note: The target distance is related to the render distance in the orthographic projection
+            camera.position = { 0.0f, 2.0f, -100.0f };
+            camera.target = { 0.0f, 2.0f, 0.0f };
+            camera.up = { 0.0f, 1.0f, 0.0f };
+            camera.projection = CAMERA_ORTHOGRAPHIC;
+            camera.fovy = 20.0f; // near plane width in CAMERA_ORTHOGRAPHIC
+           // CameraYaw(&camera, -135 * DEG2RAD, true);
+           // CameraPitch(&camera, -45 * DEG2RAD, true, true, false);
+        }
+        else if (camera.projection == CAMERA_ORTHOGRAPHIC)
+        {
+            // Reset to default view
+            cameraMode = CAMERA_THIRD_PERSON;
+            camera.position = { 0.0f, 2.0f, 10.0f };
+            camera.target = { 0.0f, 2.0f, 0.0f };
+            camera.up = { 0.0f, 1.0f, 0.0f };
+            camera.projection = CAMERA_PERSPECTIVE;
+            camera.fovy = 60.0f;
+        }
+    }
+
+    // Update camera computes movement internally depending on the camera mode
+    // Some default standard keyboard/mouse inputs are hardcoded to simplify use
+    // For advance camera controls, it's reecommended to compute camera movement manually
+    UpdateCamera(&camera, cameraMode);                  // Update camera
 }
 
 void GetMagnitude(Vector3 endPos, float& magnitude)
@@ -195,4 +285,57 @@ void DrawInstructions()
     DrawText("Press key 7 = 1/7", textX, textY9, fontSize, textColor);
     DrawText("Press key 8 = 1/8", textX, textY10, fontSize, textColor);
     DrawText("Press key 9 = 1/9", textX, textY11, fontSize, textColor);
+}
+
+void SetBaseSize(Vector3& size, float magnitudeA, float magnitudeB, float magnitudeC)
+{
+    size.x = magnitudeA;
+    size.y = magnitudeB;
+    size.z = magnitudeC;
+}
+
+void DrawPiramid(Vector3 size, float magnitudeA, float magnitudeB, float magnitudeC, float xRotation)
+{
+    Vector3 position = {magnitudeA / 2.0f, -magnitudeB / 2.0f, magnitudeC / 2.0f };
+    
+
+    Matrix rotationMatrix = MatrixRotateY(DEG2RAD * xRotation);
+    Vector3 rotatedPosition = Vector3Transform(position, rotationMatrix);
+
+
+    
+    DrawCubeV(rotatedPosition, size, PURPLE);
+    DrawCubeWiresV(position, size, GREEN);
+
+    /*for (int i = 0; size.x > magnitude3; i++)
+    {
+        DrawCubeV(position, size, PURPLE);
+        DrawCubeWiresV(position, size, GREEN);
+
+        size.x -= magnitude3 * 2;
+        size.z -= magnitude3 * 2;
+
+        position.y += magnitude3;
+        position.x += magnitude3;
+        position.z -= magnitude3;
+    }*/
+}
+
+void GetAngle(Vector3 vectorA, float magnitudeA, float& xRotation)
+{
+    Vector3 axisX = { magnitudeA, 0.0f, 0.0f };
+
+
+    float dotProduct = Vector3DotProduct(vectorA, axisX);
+
+    // Calcular las magnitudes de A y B
+    float magnitudeAA = Vector3Length(vectorA);
+    float magnitudeBB = Vector3Length(axisX);
+
+    // Calcular el ángulo en radianes utilizando la fórmula del producto escalar
+    float cosineTheta = dotProduct / (magnitudeAA * magnitudeBB);
+    float thetaRadians = acosf(cosineTheta);
+
+    // Convertir el ángulo de radianes a grados
+    xRotation = RAD2DEG * thetaRadians;
 }
