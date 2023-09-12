@@ -12,9 +12,9 @@ void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
 void SetBaseSize(Vector3& size, float magnitudeA, float magnitudeB, float magnitudeC);
-void DrawPiramid(Vector3 size, float magnitudeA, float magnitudeB, float magnitudeC, float xRotation);
+void DrawPiramid(Vector3 size, float magnitudeA, float magnitudeB, float magnitudeC, float zRotation, float xRotation, Vector3 vectorA);
 void CameraHandler(Camera3D& camera, int& cameraMode);
-void GetAngle(Vector3 vectorA, float magnitudeA, float& xRotation);
+void GetAngle(Vector3 vectorA, Vector3 vectorB, float magnitudeA, float& zRotation, float& xRotation);
 
 
 void main()
@@ -44,6 +44,7 @@ void main()
     float magnitudeB = 1; //B magnitude
     float magnitudeC = 1; //C magnitude
 
+    float zRotation;
     float xRotation;
 
     bool starting = true;
@@ -75,13 +76,6 @@ void main()
 
     GetVertical(vectorA, vectorC); //Crea Vector C
     
-   /* camera.position = startPos;
-
-    camera.position.x += 2.0f;
-    camera.position.y += 2.0f;
-    camera.position.z += 2.0f;
-
-    camera.target = startPos;*/
 
     cout << "\nMagnitud A: " << magnitudeA << endl;
     cout << "\nMagnitud B: " << magnitudeB << endl;
@@ -93,9 +87,9 @@ void main()
         ClearBackground(RAYWHITE);
 
         DrawText(TextFormat("Vector A and B magnitude: %.2f", magnitudeA), magnitudeTextPos.x, magnitudeTextPos.y, 15, BLACK);
-        DrawText("Vector A: RED", vectorATextPos.x, vectorATextPos.y, 15, BLACK);
-        DrawText("Vector B: GREEN", vectorBTextPos.x, vectorBTextPos.y, 15, BLACK);
-        DrawText("Vector C: BLUE", vectorCTextPos.x, vectorCTextPos.y, 15, BLACK);
+        DrawText("Vector A: RED", vectorATextPos.x, vectorATextPos.y, 15, BLACK); //x
+        DrawText("Vector B: GREEN", vectorBTextPos.x, vectorBTextPos.y, 15, BLACK); //z
+        DrawText("Vector C: BLUE", vectorCTextPos.x, vectorCTextPos.y, 15, BLACK); //y
 
         
 
@@ -121,9 +115,9 @@ void main()
                 cout << "\nInput: " << key << endl;
                 cout << "\nMagnitud C: " << magnitudeC << endl;
 
-                GetAngle(vectorA, magnitudeA, xRotation);
+                GetAngle(vectorA, vectorB, magnitudeA, zRotation, xRotation);
 
-                cout << xRotation;
+                cout << zRotation << endl << xRotation;
 
                 starting = false;
             }  
@@ -132,7 +126,7 @@ void main()
         {
             BeginMode3D(camera);
             SetBaseSize(size, magnitudeA, magnitudeB, magnitudeC);
-            DrawPiramid(size, magnitudeA, magnitudeB, magnitudeC, xRotation);
+            DrawPiramid(size, magnitudeA, magnitudeB, magnitudeC, zRotation, xRotation, vectorA);
 
             if (IsKeyDown('Z'))
             {
@@ -294,18 +288,32 @@ void SetBaseSize(Vector3& size, float magnitudeA, float magnitudeB, float magnit
     size.z = magnitudeC;
 }
 
-void DrawPiramid(Vector3 size, float magnitudeA, float magnitudeB, float magnitudeC, float xRotation)
+void DrawPiramid(Vector3 size, float magnitudeA, float magnitudeB, float magnitudeC, float zRotation, float xRotation, Vector3 vectorA)
 {
     Vector3 position = {magnitudeA / 2.0f, -magnitudeB / 2.0f, magnitudeC / 2.0f };
+    //Vector3 position = {0.0f, 0.0f, 0.0f};
     
+    Mesh cubeMesh = GenMeshCube(size.x, size.y, size.z);
 
-    Matrix rotationMatrix = MatrixRotateY(DEG2RAD * xRotation);
-    Vector3 rotatedPosition = Vector3Transform(position, rotationMatrix);
+    Model cubeModel = LoadModelFromMesh(cubeMesh);
 
-
+    //cubeModel.transform = MatrixMultiply(MatrixRotateZ(zRotation * DEG2RAD), cubeModel.transform);
+    //cubeModel.transform = MatrixMultiply(MatrixRotateX(xRotation * DEG2RAD), cubeModel.transform);
+    //cubeModel.transform = MatrixMultiply(MatrixRotateXYZ({ zRotation, xRotation, 0.0f }), cubeModel.transform);
+    //cubeModel.transform = MatrixMultiply(MatrixRotateX(-xRotation * DEG2RAD), cubeModel.transform);
     
-    DrawCubeV(rotatedPosition, size, PURPLE);
-    DrawCubeWiresV(position, size, GREEN);
+    //cubeModel.tranform = MatrixMultiply(MatrixRotateY(rotationAngle * DEG2RAD), cubeModel.transform); // something like that
+
+    DrawModel(cubeModel, position, 1.0f, RED);
+    //DrawModelEx(cubeModel, position, {0.0f, 0.0f, 1.0f}, xRotation, {1.0f, 1.0f, 1.0f}, RED);
+
+   /* Matrix rotationMatrix = MatrixRotateX(DEG2RAD * xRotation);
+    Vector3 rotatedPosition = Vector3Transform(vectorA, rotationMatrix);*/
+
+    //DrawCube(Vector3Zero(), 1.0f, 1.0f, 1.0f, RED);
+    
+    //DrawCubeV(vectorA, size, PURPLE);
+    //DrawCubeWiresV(position, size, GREEN);
 
     /*for (int i = 0; size.x > magnitude3; i++)
     {
@@ -321,9 +329,10 @@ void DrawPiramid(Vector3 size, float magnitudeA, float magnitudeB, float magnitu
     }*/
 }
 
-void GetAngle(Vector3 vectorA, float magnitudeA, float& xRotation)
+void GetAngle(Vector3 vectorA, Vector3 vectorB, float magnitudeA, float& zRotation, float& xRotation)
 {
     Vector3 axisX = { magnitudeA, 0.0f, 0.0f };
+    Vector3 axisZ = { 0.0f, magnitudeA, 0.0f };
 
 
     float dotProduct = Vector3DotProduct(vectorA, axisX);
@@ -335,6 +344,21 @@ void GetAngle(Vector3 vectorA, float magnitudeA, float& xRotation)
     // Calcular el ángulo en radianes utilizando la fórmula del producto escalar
     float cosineTheta = dotProduct / (magnitudeAA * magnitudeBB);
     float thetaRadians = acosf(cosineTheta);
+
+    // Convertir el ángulo de radianes a grados
+    zRotation = RAD2DEG * thetaRadians;
+
+    
+
+    dotProduct = Vector3DotProduct(vectorB, axisZ);
+
+    // Calcular las magnitudes de A y B
+    magnitudeAA = Vector3Length(vectorB);
+    magnitudeBB = Vector3Length(axisZ);
+
+    // Calcular el ángulo en radianes utilizando la fórmula del producto escalar
+    cosineTheta = dotProduct / (magnitudeAA * magnitudeBB);
+    thetaRadians = acosf(cosineTheta);
 
     // Convertir el ángulo de radianes a grados
     xRotation = RAD2DEG * thetaRadians;
