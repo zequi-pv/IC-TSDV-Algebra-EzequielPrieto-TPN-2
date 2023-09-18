@@ -11,7 +11,7 @@ void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
 void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC);
-
+float CalculateScalarProduct(Vector3 vector1, Vector3 vector2);
 
 void main()
 {
@@ -22,8 +22,8 @@ void main()
 
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
-    Vector3 vectorA = {5.0f,0.0f, 0.0f}; //Vector A 
-    //Vector3 vectorA = {(float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
+    //Vector3 vectorA = {5.0f,0.0f, 0.0f}; //Vector A 
+    Vector3 vectorA = { (float)GetRandomValue(1, 8), (float)GetRandomValue(1, 8), 0 };//(float)GetRandomValue(1, 8)}; //Vector A 
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
@@ -49,6 +49,14 @@ void main()
 
     int cameraMode = CAMERA_FIRST_PERSON;
 
+    camera.position = startPos;
+
+    camera.position.x += 2.0f;
+    camera.position.y += 2.0f;
+    camera.position.z += 2.0f;
+
+    camera.target = startPos;
+
     DisableCursor();
 
     SetTargetFPS(60);
@@ -61,13 +69,6 @@ void main()
 
     GetVertical(vectorA, vectorC); //Crea Vector C
     
-    camera.position = startPos;
-
-    camera.position.x += 2.0f;
-    camera.position.y += 2.0f;
-    camera.position.z += 2.0f;
-
-    camera.target = startPos;
 
     cout << "\nMagnitud A: " << magnitudeA << endl;
     cout << "\nMagnitud B: " << magnitudeB << endl;
@@ -132,46 +133,40 @@ void CameraHandler(Camera3D& camera, int& cameraMode)
     if (IsKeyPressed(KEY_F))
     {
         cameraMode = CAMERA_FREE;
-        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+        camera.up = { 0.0f, 1.0f, 0.0f };
     }
 
     if (IsKeyPressed(KEY_G))
     {
         cameraMode = CAMERA_FIRST_PERSON;
-        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+        camera.up = { 0.0f, 1.0f, 0.0f };
     }
 
     if (IsKeyPressed(KEY_H))
     {
         cameraMode = CAMERA_THIRD_PERSON;
-        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+        camera.up = { 0.0f, 1.0f, 0.0f };
     }
 
     if (IsKeyPressed(KEY_J))
     {
         cameraMode = CAMERA_ORBITAL;
-        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+        camera.up = { 0.0f, 1.0f, 0.0f };
     }
 
-    // Switch camera projection
     if (IsKeyPressed(KEY_P))
     {
         if (camera.projection == CAMERA_PERSPECTIVE)
         {
-            // Create isometric view
             cameraMode = CAMERA_THIRD_PERSON;
-            // Note: The target distance is related to the render distance in the orthographic projection
             camera.position = { 0.0f, 2.0f, -100.0f };
             camera.target = { 0.0f, 2.0f, 0.0f };
             camera.up = { 0.0f, 1.0f, 0.0f };
             camera.projection = CAMERA_ORTHOGRAPHIC;
-            camera.fovy = 20.0f; // near plane width in CAMERA_ORTHOGRAPHIC
-            // CameraYaw(&camera, -135 * DEG2RAD, true);
-            // CameraPitch(&camera, -45 * DEG2RAD, true, true, false);
+            camera.fovy = 20.0f; 
         }
         else if (camera.projection == CAMERA_ORTHOGRAPHIC)
         {
-            // Reset to default view
             cameraMode = CAMERA_THIRD_PERSON;
             camera.position = { 0.0f, 2.0f, 10.0f };
             camera.target = { 0.0f, 2.0f, 0.0f };
@@ -181,10 +176,14 @@ void CameraHandler(Camera3D& camera, int& cameraMode)
         }
     }
 
-    // Update camera computes movement internally depending on the camera mode
-    // Some default standard keyboard/mouse inputs are hardcoded to simplify use
-    // For advance camera controls, it's reecommended to compute camera movement manually
-    UpdateCamera(&camera, cameraMode);                  // Update camera
+    UpdateCamera(&camera, cameraMode);
+}
+
+float CalculateScalarProduct(Vector3 vector1, Vector3 vector2)
+{
+    float scalarProduct = vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
+
+    return scalarProduct;
 }
 
 void GetMagnitude(Vector3 endPos, float& magnitude)
@@ -267,49 +266,61 @@ void DrawInstructions()
 
 void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC)
 {
-    //DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
-    //DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
-    //DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
-
     Vector3 vertex;
     vertex.x = vectorA.x + vectorB.x;
     vertex.y = vectorA.y + vectorB.y;
     vertex.z = vectorA.z + vectorB.z;
 
-    Vector3 vertical2 = vertex;
-   
-    vertical2.y = vertex.z;
-    vertical2.z = -1 * vertex.y;
+    Vector3 verticalA;
+    verticalA.x = vectorA.x + vectorC.x;
+    verticalA.y = vectorA.y + vectorC.y;
+    verticalA.z = vectorA.z + vectorC.z;
 
-    //a-bis
-    DrawLine3D(vectorB, vertex, YELLOW); //Dibuja Vector A
-    DrawLine3D(vectorA, vertex, ORANGE); //Dibuja Vector A
+    Vector3 verticalB;
+    verticalB.x = vectorB.x + vectorC.x;
+    verticalB.y = vectorB.y + vectorC.y;
+    verticalB.z = vectorB.z + vectorC.z;
 
-    DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
+    Vector3 verticalC;
+    verticalC.x = vertex.x + vectorC.x;
+    verticalC.y = vertex.y + vectorC.y;
+    verticalC.z = vertex.z + vectorC.z;
 
+    DrawLine3D(vectorB, vertex, PINK); //Dibuja Vector A bis
+    DrawLine3D(vectorA, vertex, ORANGE); //Dibuja Vector B bis
 
-    /*GetVertical(vectorC, vertical2);
-    SetNewMagnitude(vertical2, magnitudeC);*/
+    float scalarAB = CalculateScalarProduct(startPos, vertex);
+    float scalarSV = CalculateScalarProduct(vectorA, vectorB);
 
-    DrawLine3D(vertex, vertical2, VIOLET); //Dibuja Vector C
+    float scalarAA = CalculateScalarProduct(vertex, verticalA);
+    float scalarBB = CalculateScalarProduct(vectorB, verticalC);
+    float scalarCC = CalculateScalarProduct(verticalB, startPos);
+    float scalarDD = CalculateScalarProduct(vectorC, vectorA);
 
-    /*startPos.z += magnitudeC;
-    vectorA.z += magnitudeC;
-    vectorB.z += magnitudeC;
-    vertex.z += magnitudeC;*/
+    float scalarAA2 = CalculateScalarProduct(startPos, verticalA);
+    float scalarBB2 = CalculateScalarProduct(vectorC, vectorB);
+    float scalarCC2 = CalculateScalarProduct(verticalB, vertex);
+    float scalarDD2 = CalculateScalarProduct(verticalC, vectorA);
 
-   /* startPos.z += vectorC.z;
-    vectorA.z += vectorC.z;
-    vectorB.z += vectorC.z;*/
-    //vectorC.z += magnitudeC;
+    cout << "\nScalar AB: " << scalarAB << endl; //90 grados
+    cout << "Scalar SV: " << scalarSV << endl; //90 grados
+    
+    cout << "\nScalar AA: " << scalarAA << endl; //no da
+    cout << "Scalar BB: " << scalarBB << endl; //no da
+    cout << "Scalar CC: " << scalarCC << endl; //90 grados
+    cout << "Scalar DD: " << scalarDD << endl; //90 grados
 
-  
+    cout << "\nScalar AA2: " << scalarAA2 << endl; //90 grados
+    cout << "Scalar BB2: " << scalarBB2 << endl; //90 grados
+    cout << "Scalar CC2: " << scalarCC2 << endl; //no da
+    cout << "Scalar DD2: " << scalarDD2 << endl; //no da
 
-    //DrawLine3D(vectorC, vectorA, VIOLET); //Dibuja Vector A
-    //DrawLine3D(vectorC, vectorB, VIOLET); //Dibuja Vector B
-    //DrawLine3D(startPos, vectorC, VIOLET); //Dibuja Vector C
+    DrawLine3D(vectorA, verticalA, VIOLET); //Dibuja Vertical A
+    DrawLine3D(vectorB, verticalB, VIOLET); //Dibuja Vertical B
+    DrawLine3D(vertex, verticalC, VIOLET); //Dibuja Vertical C
 
-    //DrawLine3D(vectorB, vertex, VIOLET); //Dibuja Vector A
-    //DrawLine3D(vectorA, vertex, VIOLET); //Dibuja Vector A
-
+    DrawLine3D(vectorC, verticalA, VIOLET); //Dibuja parallel A
+    DrawLine3D(verticalA, verticalC, VIOLET); //Dibuja parallel B
+    DrawLine3D(verticalC, verticalB, VIOLET); //Dibuja parallel C
+    DrawLine3D(verticalB, vectorC, VIOLET); //Dibuja parallel D
 }
