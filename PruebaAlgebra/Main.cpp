@@ -10,6 +10,8 @@ void NormalizeVector(Vector3& vector);
 void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
+void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC);
+
 
 void main()
 {
@@ -20,7 +22,8 @@ void main()
 
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
-    Vector3 vectorA = {(float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
+    Vector3 vectorA = {5.0f,0.0f, 0.0f}; //Vector A 
+    //Vector3 vectorA = {(float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
@@ -41,7 +44,7 @@ void main()
     camera.position = { 0.0f, 2.0f, 4.0f };    // Camera position
     camera.target = { 0.0f, 2.0f, 0.0f };      // Camera looking at point
     camera.up = { 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 60.0f;                                // Camera field-of-view Y
+    camera.fovy = 100.0f;                                // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
     int cameraMode = CAMERA_FIRST_PERSON;
@@ -87,6 +90,8 @@ void main()
         DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
         DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
         DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
+
+        DrawPyramid(startPos, vectorA, vectorB, vectorC, magnitudeC);
 
         EndMode3D();
 
@@ -258,4 +263,53 @@ void DrawInstructions()
     DrawText("Press key 7 = 1/7", textX, textY9, fontSize, textColor);
     DrawText("Press key 8 = 1/8", textX, textY10, fontSize, textColor);
     DrawText("Press key 9 = 1/9", textX, textY11, fontSize, textColor);
+}
+
+void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC)
+{
+    //DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
+    //DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
+    //DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
+
+    Vector3 vertex;
+    vertex.x = vectorA.x + vectorB.x;
+    vertex.y = vectorA.y + vectorB.y;
+    vertex.z = vectorA.z + vectorB.z;
+
+    Vector3 vertical2 = vertex;
+   
+    vertical2.y = vertex.z;
+    vertical2.z = -1 * vertex.y;
+
+    //a-bis
+    DrawLine3D(vectorB, vertex, YELLOW); //Dibuja Vector A
+    DrawLine3D(vectorA, vertex, ORANGE); //Dibuja Vector A
+
+    DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
+
+
+    /*GetVertical(vectorC, vertical2);
+    SetNewMagnitude(vertical2, magnitudeC);*/
+
+    DrawLine3D(vertex, vertical2, VIOLET); //Dibuja Vector C
+
+    /*startPos.z += magnitudeC;
+    vectorA.z += magnitudeC;
+    vectorB.z += magnitudeC;
+    vertex.z += magnitudeC;*/
+
+   /* startPos.z += vectorC.z;
+    vectorA.z += vectorC.z;
+    vectorB.z += vectorC.z;*/
+    //vectorC.z += magnitudeC;
+
+  
+
+    //DrawLine3D(vectorC, vectorA, VIOLET); //Dibuja Vector A
+    //DrawLine3D(vectorC, vectorB, VIOLET); //Dibuja Vector B
+    //DrawLine3D(startPos, vectorC, VIOLET); //Dibuja Vector C
+
+    //DrawLine3D(vectorB, vertex, VIOLET); //Dibuja Vector A
+    //DrawLine3D(vectorA, vertex, VIOLET); //Dibuja Vector A
+
 }
