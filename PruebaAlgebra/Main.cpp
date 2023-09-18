@@ -3,6 +3,7 @@
 
 using namespace std;
 
+void CameraHandler(Camera3D& camera, int& cameraMode);
 void GetMagnitude(Vector3 endPos, float& magnitude);
 void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular);
 void NormalizeVector(Vector3& vector);
@@ -19,10 +20,7 @@ void main()
 
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
-    //Vector A datos
-    Vector3 vectorA = { 5.0f, 0.0f, 0.0f };
-    Color color = RED;
-
+    Vector3 vectorA = {(float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
@@ -36,14 +34,19 @@ void main()
 
     SetExitKey(27);
     InitWindow(800, 450, "Algebra TP2");
-    Camera3D camera;
 
-    camera = { 0 };
-    camera.position = { 0.0f, 13.0f, 0.0f };   // Camera position
-    camera.target = { 0.0f, 0.0f, 0.0f };      // Camera looking at point
-    camera.up = { 0.0f, 0.5f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 1000.0f;                     // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;
+    Model model;
+
+    Camera camera = { 0 };
+    camera.position = { 0.0f, 2.0f, 4.0f };    // Camera position
+    camera.target = { 0.0f, 2.0f, 0.0f };      // Camera looking at point
+    camera.up = { 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    camera.fovy = 60.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+
+    int cameraMode = CAMERA_FIRST_PERSON;
+
+    DisableCursor();
 
     SetTargetFPS(60);
 
@@ -68,7 +71,7 @@ void main()
 
     while (!WindowShouldClose())
     {
-        UpdateCamera(&camera, CAMERA_FREE);
+        CameraHandler(camera, cameraMode);
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
@@ -81,9 +84,9 @@ void main()
 
         BeginMode3D(camera);
 
-        DrawLine3D(startPos, vectorA, color);
-        DrawLine3D(startPos, vectorB, GREEN);
-        DrawLine3D(startPos, vectorC, BLUE);
+        DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
+        DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
+        DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
 
         EndMode3D();
 
@@ -117,6 +120,66 @@ void main()
     }
 
     CloseWindow();
+}
+
+void CameraHandler(Camera3D& camera, int& cameraMode)
+{
+    if (IsKeyPressed(KEY_F))
+    {
+        cameraMode = CAMERA_FREE;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    if (IsKeyPressed(KEY_G))
+    {
+        cameraMode = CAMERA_FIRST_PERSON;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    if (IsKeyPressed(KEY_H))
+    {
+        cameraMode = CAMERA_THIRD_PERSON;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    if (IsKeyPressed(KEY_J))
+    {
+        cameraMode = CAMERA_ORBITAL;
+        camera.up = { 0.0f, 1.0f, 0.0f }; // Reset roll
+    }
+
+    // Switch camera projection
+    if (IsKeyPressed(KEY_P))
+    {
+        if (camera.projection == CAMERA_PERSPECTIVE)
+        {
+            // Create isometric view
+            cameraMode = CAMERA_THIRD_PERSON;
+            // Note: The target distance is related to the render distance in the orthographic projection
+            camera.position = { 0.0f, 2.0f, -100.0f };
+            camera.target = { 0.0f, 2.0f, 0.0f };
+            camera.up = { 0.0f, 1.0f, 0.0f };
+            camera.projection = CAMERA_ORTHOGRAPHIC;
+            camera.fovy = 20.0f; // near plane width in CAMERA_ORTHOGRAPHIC
+            // CameraYaw(&camera, -135 * DEG2RAD, true);
+            // CameraPitch(&camera, -45 * DEG2RAD, true, true, false);
+        }
+        else if (camera.projection == CAMERA_ORTHOGRAPHIC)
+        {
+            // Reset to default view
+            cameraMode = CAMERA_THIRD_PERSON;
+            camera.position = { 0.0f, 2.0f, 10.0f };
+            camera.target = { 0.0f, 2.0f, 0.0f };
+            camera.up = { 0.0f, 1.0f, 0.0f };
+            camera.projection = CAMERA_PERSPECTIVE;
+            camera.fovy = 60.0f;
+        }
+    }
+
+    // Update camera computes movement internally depending on the camera mode
+    // Some default standard keyboard/mouse inputs are hardcoded to simplify use
+    // For advance camera controls, it's reecommended to compute camera movement manually
+    UpdateCamera(&camera, cameraMode);                  // Update camera
 }
 
 void GetMagnitude(Vector3 endPos, float& magnitude)
