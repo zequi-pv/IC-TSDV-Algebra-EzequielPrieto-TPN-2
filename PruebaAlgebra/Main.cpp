@@ -1,5 +1,6 @@
 #include <iostream>
 #include <raylib.h>
+#include <raymath.h>
 
 using namespace std;
 
@@ -8,6 +9,7 @@ void GetMagnitude(Vector3 endPos, float& magnitude);
 void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular);
 void NormalizeVector(Vector3& vector);
 void SetNewMagnitude(Vector3& vector, float designedMagnitude);
+void CrossProduct(Vector3 vector1, Vector3 vector2, Vector3 vertex, Vector3& vectorPerp);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
 void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC);
@@ -23,7 +25,7 @@ void main()
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
     //Vector3 vectorA = {5.0f,0.0f, 0.0f}; //Vector A 
-    Vector3 vectorA = { (float)GetRandomValue(1, 8), (float)GetRandomValue(1, 8), 0 };//(float)GetRandomValue(1, 8)}; //Vector A 
+    Vector3 vectorA = { (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)};//(float)GetRandomValue(1, 8)}; //Vector A 
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
@@ -67,8 +69,8 @@ void main()
     SetNewMagnitude(vectorB, magnitudeA); //Normaliza y multiplica magnitud Vector B por la magnitud Vector A
     GetMagnitude(vectorB, magnitudeB); //Magnitud actual de Vector B
 
-    GetVertical(vectorA, vectorC); //Crea Vector C
-    
+    //GetVertical(vectorA, vectorC); //Crea Vector C
+    CrossProduct(vectorA, vectorB, startPos, vectorC);
 
     cout << "\nMagnitud A: " << magnitudeA << endl;
     cout << "\nMagnitud B: " << magnitudeB << endl;
@@ -181,7 +183,7 @@ void CameraHandler(Camera3D& camera, int& cameraMode)
 
 float CalculateScalarProduct(Vector3 vector1, Vector3 vector2)
 {
-    float scalarProduct = vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
+    float scalarProduct = (vector1.x * vector2.x) + (vector1.y * vector2.y) + (vector1.z * vector2.z);
 
     return scalarProduct;
 }
@@ -193,9 +195,8 @@ void GetMagnitude(Vector3 endPos, float& magnitude)
 
 void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular)
 {
-    perpendicular.x = endPos.y;
-    perpendicular.y = -1 * endPos.x;
-   
+    perpendicular.x = endPos.z;
+    perpendicular.z = -1 * endPos.x;
 }
 
 void NormalizeVector(Vector3& vector)
@@ -218,10 +219,17 @@ void SetNewMagnitude(Vector3& vector, float designedMagnitude)
     vector.z *= designedMagnitude;
 }
 
+void CrossProduct(Vector3 vector1, Vector3 vector2, Vector3 vertex, Vector3& vectorPerp)
+{
+    vectorPerp.x = ((vector1.y * vector2.z) - (vector1.z * vector2.y)) + vertex.x;
+    vectorPerp.y = ((vector1.z * vector2.x) - (vector1.x * vector2.z)) + vertex.y;
+    vectorPerp.z = ((vector1.x * vector2.y) - (vector1.y * vector2.x)) + vertex.z;
+}
+
 void GetVertical(Vector3 endPos, Vector3& vertical)
 {
-    vertical.z = endPos.x;
-    vertical.x = -1 *endPos.z;
+    vertical.y = endPos.x;
+    vertical.x = -1 *endPos.y;
 }
 
 void DrawInstructions()
@@ -271,7 +279,7 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
     vertex.y = vectorA.y + vectorB.y;
     vertex.z = vectorA.z + vectorB.z;
 
-    Vector3 verticalA;
+    Vector3 verticalA = {0.0f, 0.0f, 0.0f};
     verticalA.x = vectorA.x + vectorC.x;
     verticalA.y = vectorA.y + vectorC.y;
     verticalA.z = vectorA.z + vectorC.z;
@@ -292,7 +300,7 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
     float scalarAB = CalculateScalarProduct(startPos, vertex);
     float scalarSV = CalculateScalarProduct(vectorA, vectorB);
 
-    float scalarAA = CalculateScalarProduct(vertex, verticalA);
+    float scalarAA = CalculateScalarProduct(vectorA, vectorC);
     float scalarBB = CalculateScalarProduct(vectorB, verticalC);
     float scalarCC = CalculateScalarProduct(verticalB, startPos);
     float scalarDD = CalculateScalarProduct(vectorC, vectorA);
