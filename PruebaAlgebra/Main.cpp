@@ -4,6 +4,8 @@
 
 using namespace std;
 
+//Hola
+
 void CameraHandler(Camera3D& camera, int& cameraMode);
 void GetMagnitude(Vector3 endPos, float& magnitude);
 void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular);
