@@ -14,7 +14,7 @@ void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void CrossProduct(Vector3 vector1, Vector3 vector2, Vector3 vertex, Vector3& vectorPerp);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
-void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC);
+void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput);
 float CalculateScalarProduct(Vector3 vector1, Vector3 vector2);
 
 void main()
@@ -30,7 +30,7 @@ void main()
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
-    int userInput;
+    float userInput = 0;
 
     float magnitudeA = 1; //A magnitude
     float magnitudeB = 1; //B magnitude
@@ -95,7 +95,7 @@ void main()
         DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
         DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
 
-        DrawPyramid(startPos, vectorA, vectorB, vectorC, magnitudeC);
+        DrawPyramid(startPos, vectorA, vectorB, vectorC, magnitudeC, userInput);
 
         EndMode3D();
 
@@ -112,6 +112,8 @@ void main()
 
                 cout << "\nInput: " << key << endl;
                 cout << "\nMagnitud C: " << magnitudeC << endl;
+
+                userInput = (float)key;
 
                 starting = false;
             }  
@@ -273,48 +275,53 @@ void DrawInstructions()
     DrawText("Press key 9 = 1/9", textX, textY11, fontSize, textColor);
 }
 
-void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC)
+void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput)
 {
-    Vector3 vertex;
-    vertex.x = vectorA.x + vectorB.x;
-    vertex.y = vectorA.y + vectorB.y;
-    vertex.z = vectorA.z + vectorB.z;
+    Vector3 xMovement; //Es el desplazamiento para cada piso en x
+    xMovement.x = vectorA.x / userInput;
+    xMovement.y = vectorA.y / userInput;
+    xMovement.z = vectorA.z / userInput;
 
-    Vector3 verticalA = {0.0f, 0.0f, 0.0f};
-    verticalA.x = vectorA.x + vectorC.x;
-    verticalA.y = vectorA.y + vectorC.y;
-    verticalA.z = vectorA.z + vectorC.z;
+    Vector3 yMovement;
+    yMovement.x = vectorB.x / userInput;
+    yMovement.y = vectorB.y / userInput;
+    yMovement.z = vectorB.z / userInput;
 
-    Vector3 verticalB;
-    verticalB.x = vectorB.x + vectorC.x;
-    verticalB.y = vectorB.y + vectorC.y;
-    verticalB.z = vectorB.z + vectorC.z;
+    //...
+    Vector3 upRight = Vector3Add(xMovement, yMovement);
+    Vector3 upLeft = Vector3Add(Vector3Scale(xMovement, -1.0f), yMovement);
+    Vector3 downRight = Vector3Subtract(xMovement, yMovement);
+    Vector3 downLeft = Vector3Subtract(Vector3Scale(xMovement, -1.0f), yMovement);
 
-    Vector3 verticalC;
-    verticalC.x = vertex.x + vectorC.x;
-    verticalC.y = vertex.y + vectorC.y;
-    verticalC.z = vertex.z + vectorC.z;
+    //Auxiliares para no modificar los valores originales
+    Vector3 zeroToLine = startPos;
+    Vector3 auxA = vectorA;
+    Vector3 auxB = vectorB;
+    Vector3 floatPoint = Vector3Add(vectorA, vectorB);
 
-    DrawLine3D(vectorB, vertex, PINK); //Dibuja Vector A bis
-    DrawLine3D(vectorA, vertex, ORANGE); //Dibuja Vector B bis
+    float floorQnty = userInput / 2; //Cantidad de veces que se repetirá el for que dibuja los pisos. 
 
-    float scalarAB = CalculateScalarProduct(startPos, vertex);
-    float scalarSV = CalculateScalarProduct(vectorA, vectorB);
+    for (int i = 0; i < floorQnty; i++)
+    {
+        DrawLine3D(Vector3Add(zeroToLine, (Vector3Scale(upRight, i))), Vector3Add(Vector3Add(zeroToLine, (Vector3Scale(upRight, i))), vectorC), PINK);
+        DrawLine3D(Vector3Add(auxA, (Vector3Scale(upLeft, i))), Vector3Add(Vector3Add(auxA, (Vector3Scale(upLeft, i))), vectorC), PINK);
+        DrawLine3D(Vector3Add(auxB, (Vector3Scale(downRight, i))), Vector3Add(Vector3Add(auxB, (Vector3Scale(downRight, i))), vectorC), PINK);
+        DrawLine3D(Vector3Add(floatPoint, (Vector3Scale(downLeft, i))), Vector3Add(Vector3Add(floatPoint, (Vector3Scale(downLeft, i))), vectorC), PINK);
 
-    float scalarAA = CalculateScalarProduct(vectorA, vectorC);
-    float scalarBB2 = CalculateScalarProduct(vectorC, vectorB);
+        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
+        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
+        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
+        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
 
-    cout << "\nScalar AB: " << scalarAB << endl; 
-    cout << "Scalar SV: " << scalarSV << endl;  
-    cout << "\nScalar AA: " << scalarAA << endl; 
-    cout << "Scalar BB2: " << scalarBB2 << endl; 
+        zeroToLine = Vector3Add(zeroToLine, vectorC);
+        auxA = Vector3Add(auxA, vectorC);
+        auxB = Vector3Add(auxB, vectorC);
+        floatPoint = Vector3Add(floatPoint, vectorC);
 
-    DrawLine3D(vectorA, verticalA, VIOLET); //Dibuja Vertical A
-    DrawLine3D(vectorB, verticalB, VIOLET); //Dibuja Vertical B
-    DrawLine3D(vertex, verticalC, VIOLET); //Dibuja Vertical C
-
-    DrawLine3D(vectorC, verticalA, VIOLET); //Dibuja parallel A
-    DrawLine3D(verticalA, verticalC, VIOLET); //Dibuja parallel B
-    DrawLine3D(verticalC, verticalB, VIOLET); //Dibuja parallel C
-    DrawLine3D(verticalB, vectorC, VIOLET); //Dibuja parallel D
+        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
+        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
+        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
+        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
+    }
 }
+
