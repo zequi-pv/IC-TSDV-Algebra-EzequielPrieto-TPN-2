@@ -24,8 +24,7 @@ void main()
 
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
-    //Vector3 vectorA = {5.0f,0.0f, 0.0f}; //Vector A 
-    Vector3 vectorA = { (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)};//(float)GetRandomValue(1, 8)}; //Vector A 
+    Vector3 vectorA = { (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
@@ -301,27 +300,12 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
     float scalarSV = CalculateScalarProduct(vectorA, vectorB);
 
     float scalarAA = CalculateScalarProduct(vectorA, vectorC);
-    float scalarBB = CalculateScalarProduct(vectorB, verticalC);
-    float scalarCC = CalculateScalarProduct(verticalB, startPos);
-    float scalarDD = CalculateScalarProduct(vectorC, vectorA);
-
-    float scalarAA2 = CalculateScalarProduct(startPos, verticalA);
     float scalarBB2 = CalculateScalarProduct(vectorC, vectorB);
-    float scalarCC2 = CalculateScalarProduct(verticalB, vertex);
-    float scalarDD2 = CalculateScalarProduct(verticalC, vectorA);
 
-    cout << "\nScalar AB: " << scalarAB << endl; //90 grados
-    cout << "Scalar SV: " << scalarSV << endl; //90 grados
-    
-    cout << "\nScalar AA: " << scalarAA << endl; //no da
-    cout << "Scalar BB: " << scalarBB << endl; //no da
-    cout << "Scalar CC: " << scalarCC << endl; //90 grados
-    cout << "Scalar DD: " << scalarDD << endl; //90 grados
-
-    cout << "\nScalar AA2: " << scalarAA2 << endl; //90 grados
-    cout << "Scalar BB2: " << scalarBB2 << endl; //90 grados
-    cout << "Scalar CC2: " << scalarCC2 << endl; //no da
-    cout << "Scalar DD2: " << scalarDD2 << endl; //no da
+    cout << "\nScalar AB: " << scalarAB << endl; 
+    cout << "Scalar SV: " << scalarSV << endl;  
+    cout << "\nScalar AA: " << scalarAA << endl; 
+    cout << "Scalar BB2: " << scalarBB2 << endl; 
 
     DrawLine3D(vectorA, verticalA, VIOLET); //Dibuja Vertical A
     DrawLine3D(vectorB, verticalB, VIOLET); //Dibuja Vertical B
