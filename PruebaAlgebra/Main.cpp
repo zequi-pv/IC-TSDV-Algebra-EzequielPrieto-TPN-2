@@ -6,6 +6,8 @@ using namespace std;
 
 //Hola
 
+void SetCamera(Camera& camera, Vector3 startPos);
+void ShowMenu(float magnitudeA);
 void CameraHandler(Camera3D& camera, int& cameraMode);
 void GetMagnitude(Vector3 endPos, float& magnitude);
 void GetFirstPerpendicular(Vector3 endPos, Vector3& perpendicular);
@@ -19,11 +21,6 @@ float CalculateScalarProduct(Vector3 vector1, Vector3 vector2);
 
 void main()
 {
-    Vector2 magnitudeTextPos = { 10, 30 };
-    Vector2 vectorATextPos = { 10, 50 };
-    Vector2 vectorBTextPos = { 10, 70 };
-    Vector2 vectorCTextPos = { 10, 90 };
-
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
     Vector3 vectorA = { (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
@@ -41,24 +38,11 @@ void main()
     SetExitKey(27);
     InitWindow(800, 450, "Algebra TP2");
 
-    Model model;
 
     Camera camera = { 0 };
-    camera.position = { 0.0f, 2.0f, 4.0f };    // Camera position
-    camera.target = { 0.0f, 2.0f, 0.0f };      // Camera looking at point
-    camera.up = { 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 100.0f;                                // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
-
+    SetCamera(camera, startPos);
     int cameraMode = CAMERA_FIRST_PERSON;
 
-    camera.position = startPos;
-
-    camera.position.x += 2.0f;
-    camera.position.y += 2.0f;
-    camera.position.z += 2.0f;
-
-    camera.target = startPos;
 
     DisableCursor();
 
@@ -78,22 +62,16 @@ void main()
 
     while (!WindowShouldClose())
     {
+        int key;
+
         CameraHandler(camera, cameraMode);
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawText(TextFormat("Vector A and B magnitude: %.2f", magnitudeA), magnitudeTextPos.x, magnitudeTextPos.y, 15, BLACK);
-        DrawText("Vector A: RED", vectorATextPos.x, vectorATextPos.y, 15, BLACK);
-        DrawText("Vector B: GREEN", vectorBTextPos.x, vectorBTextPos.y, 15, BLACK);
-        DrawText("Vector C: BLUE", vectorCTextPos.x, vectorCTextPos.y, 15, BLACK);
+        ShowMenu(magnitudeA);
 
-        int key;
 
         BeginMode3D(camera);
-
-        DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
-        DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
-        DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
 
         DrawPyramid(startPos, vectorA, vectorB, vectorC, magnitudeC, userInput);
 
@@ -131,6 +109,36 @@ void main()
     }
 
     CloseWindow();
+}
+
+void SetCamera(Camera& camera, Vector3 startPos)
+{
+    camera.position = { 0.0f, 2.0f, 4.0f };    // Camera position
+    camera.target = { 0.0f, 2.0f, 0.0f };      // Camera looking at point
+    camera.up = { 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    camera.fovy = 100.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+
+    camera.position = startPos;
+
+    camera.position.x += 2.0f;
+    camera.position.y += 2.0f;
+    camera.position.z += 2.0f;
+
+    camera.target = startPos;
+}
+void ShowMenu(float magnitudeA)
+{
+    Vector2 magnitudeTextPos = { 10, 30 };
+    Vector2 vectorATextPos = { 10, 50 };
+    Vector2 vectorBTextPos = { 10, 70 };
+    Vector2 vectorCTextPos = { 10, 90 };
+
+
+    DrawText(TextFormat("Vector A and B magnitude: %.2f", magnitudeA), magnitudeTextPos.x, magnitudeTextPos.y, 15, BLACK);
+    DrawText("Vector A: RED", vectorATextPos.x, vectorATextPos.y, 15, BLACK);
+    DrawText("Vector B: GREEN", vectorBTextPos.x, vectorBTextPos.y, 15, BLACK);
+    DrawText("Vector C: BLUE", vectorCTextPos.x, vectorCTextPos.y, 15, BLACK);
 }
 
 void CameraHandler(Camera3D& camera, int& cameraMode)
@@ -277,51 +285,57 @@ void DrawInstructions()
 
 void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput)
 {
-    Vector3 xMovement; //Es el desplazamiento para cada piso en x
-    xMovement.x = vectorA.x / userInput;
-    xMovement.y = vectorA.y / userInput;
-    xMovement.z = vectorA.z / userInput;
+    Vector3 transformX; //Es el desplazamiento para cada piso en x
+    transformX.x = vectorA.x / userInput;
+    transformX.y = vectorA.y / userInput;
+    transformX.z = vectorA.z / userInput;
 
-    Vector3 yMovement;
-    yMovement.x = vectorB.x / userInput;
-    yMovement.y = vectorB.y / userInput;
-    yMovement.z = vectorB.z / userInput;
+    Vector3 transformY;
+    transformY.x = vectorB.x / userInput;
+    transformY.y = vectorB.y / userInput;
+    transformY.z = vectorB.z / userInput;
 
     //...
-    Vector3 upRight = Vector3Add(xMovement, yMovement);
-    Vector3 upLeft = Vector3Add(Vector3Scale(xMovement, -1.0f), yMovement);
-    Vector3 downRight = Vector3Subtract(xMovement, yMovement);
-    Vector3 downLeft = Vector3Subtract(Vector3Scale(xMovement, -1.0f), yMovement);
+    Vector3 reductionStartPos = Vector3Subtract(Vector3Scale(transformX, -1.0f), transformY);
+    Vector3 reductionA = Vector3Add(Vector3Scale(transformX, -1.0f), transformY);
+    Vector3 reductionB = Vector3Subtract(transformX, transformY);
+    Vector3 reductionC = Vector3Add(transformX, transformY);
+
 
     //Auxiliares para no modificar los valores originales
-    Vector3 zeroToLine = startPos;
-    Vector3 auxA = vectorA;
-    Vector3 auxB = vectorB;
-    Vector3 floatPoint = Vector3Add(vectorA, vectorB);
+    Vector3 dinamicStartPos = startPos;
+    Vector3 dinamicA = vectorA;
+    Vector3 dinamicB = vectorB;
+    Vector3 dinamicC = Vector3Add(vectorA, vectorB);
 
     float floorQnty = userInput / 2; //Cantidad de veces que se repetirá el for que dibuja los pisos. 
 
+    DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
+    DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
+    DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
+
+
     for (int i = 0; i < floorQnty; i++)
     {
-        DrawLine3D(Vector3Add(zeroToLine, (Vector3Scale(upRight, i))), Vector3Add(Vector3Add(zeroToLine, (Vector3Scale(upRight, i))), vectorC), PINK);
-        DrawLine3D(Vector3Add(auxA, (Vector3Scale(upLeft, i))), Vector3Add(Vector3Add(auxA, (Vector3Scale(upLeft, i))), vectorC), PINK);
-        DrawLine3D(Vector3Add(auxB, (Vector3Scale(downRight, i))), Vector3Add(Vector3Add(auxB, (Vector3Scale(downRight, i))), vectorC), PINK);
-        DrawLine3D(Vector3Add(floatPoint, (Vector3Scale(downLeft, i))), Vector3Add(Vector3Add(floatPoint, (Vector3Scale(downLeft, i))), vectorC), PINK);
+        DrawLine3D(Vector3Add(dinamicStartPos, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicStartPos, (Vector3Scale(reductionC, i))), vectorC), PINK);
+        DrawLine3D(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), Vector3Add(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), vectorC), PINK);
+        DrawLine3D(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), Vector3Add(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), vectorC), PINK);
+        DrawLine3D(Vector3Add(dinamicC, (Vector3Scale(reductionStartPos, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionStartPos, i))), vectorC), VIOLET);
 
-        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
-        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
-        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
-        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
 
-        zeroToLine = Vector3Add(zeroToLine, vectorC);
-        auxA = Vector3Add(auxA, vectorC);
-        auxB = Vector3Add(auxB, vectorC);
-        floatPoint = Vector3Add(floatPoint, vectorC);
+        dinamicStartPos = Vector3Add(dinamicStartPos, vectorC);
+        dinamicA = Vector3Add(dinamicA, vectorC);
+        dinamicB = Vector3Add(dinamicB, vectorC);
+        dinamicC = Vector3Add(dinamicC, vectorC);
 
-        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
-        DrawLine3D(Vector3Add(zeroToLine, Vector3Scale(upRight, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
-        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxA, Vector3Scale(upLeft, i)), VIOLET);
-        DrawLine3D(Vector3Add(floatPoint, Vector3Scale(downLeft, i)), Vector3Add(auxB, Vector3Scale(downRight, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
     }
 }
 
