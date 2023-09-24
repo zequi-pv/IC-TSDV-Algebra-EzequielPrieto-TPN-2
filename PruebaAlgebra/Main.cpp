@@ -24,7 +24,7 @@ void main()
 
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
-    Vector3 vectorA = { (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
+    Vector3 vectorA = { (float)GetRandomValue(2.0f, 8.0f), (float)GetRandomValue(2.0f, 8.0f), (float)GetRandomValue(2.0f, 8.0f)}; //Vector A 
     Vector3 vectorB = { 0.0f, 0.0f, 0.0f }; //Vector B
     Vector3 vectorC = { 0.0f, 0.0f, 0.0f }; //Vector C
 
@@ -310,9 +310,15 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
     Vector3 dinamicB = vectorB;
     Vector3 dinamicC = Vector3Add(vectorA, vectorB);
 
+<<<<<<< Updated upstream
     DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
     DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
     DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
+=======
+    DrawLine3D(startPos, vectorA, PINK);
+    DrawLine3D(startPos, vectorB, PINK);
+    DrawLine3D(startPos, vectorC, PINK);
+>>>>>>> Stashed changes
 
     float floorQnty = userInput / 2; //Cantidad de veces que se repetirá el for que dibuja los pisos. 
     
