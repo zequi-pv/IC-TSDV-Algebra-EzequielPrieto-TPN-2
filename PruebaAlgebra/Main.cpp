@@ -21,6 +21,8 @@ float CalculateScalarProduct(Vector3 vector1, Vector3 vector2);
 
 void main()
 {
+    srand(NULL);
+
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
     Vector3 vectorA = { (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8), (float)GetRandomValue(2, 8)}; //Vector A 
@@ -283,6 +285,11 @@ void DrawInstructions()
     DrawText("Press key 9 = 1/9", textX, textY11, fontSize, textColor);
 }
 
+void GetArea()
+{
+
+}
+
 void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput)
 {
     Vector3 transformX; //Es el desplazamiento para cada piso en x
@@ -296,10 +303,10 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
     transformY.z = vectorB.z / userInput;
 
     //...
-    Vector3 reductionStartPos = Vector3Subtract(Vector3Scale(transformX, -1.0f), transformY);
+    Vector3 reductionStartPos = Vector3Add(transformX, transformY);
     Vector3 reductionA = Vector3Add(Vector3Scale(transformX, -1.0f), transformY);
     Vector3 reductionB = Vector3Subtract(transformX, transformY);
-    Vector3 reductionC = Vector3Add(transformX, transformY);
+    Vector3 reductionC = Vector3Subtract(Vector3Scale(transformX, -1.0f), transformY);
 
 
     //Auxiliares para no modificar los valores originales
@@ -310,32 +317,44 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
 
     float floorQnty = userInput / 2; //Cantidad de veces que se repetirá el for que dibuja los pisos. 
 
-    DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
-    DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
-    DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
-
+    //DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
+    //DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
+    //DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
+    
+    float totalMagnitude{};
 
     for (int i = 0; i < floorQnty; i++)
     {
-        DrawLine3D(Vector3Add(dinamicStartPos, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicStartPos, (Vector3Scale(reductionC, i))), vectorC), PINK);
+        //verticals
+        DrawLine3D(Vector3Add(dinamicStartPos, (Vector3Scale(reductionStartPos, i))), Vector3Add(Vector3Add(dinamicStartPos, (Vector3Scale(reductionStartPos, i))), vectorC), PINK);
         DrawLine3D(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), Vector3Add(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), vectorC), PINK);
         DrawLine3D(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), Vector3Add(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), vectorC), PINK);
-        DrawLine3D(Vector3Add(dinamicC, (Vector3Scale(reductionStartPos, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionStartPos, i))), vectorC), VIOLET);
+        DrawLine3D(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), vectorC), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), vectorC));
 
-        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
-        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        totalMagnitude += Vector3Distance(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i));
+       
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)));
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
 
         dinamicStartPos = Vector3Add(dinamicStartPos, vectorC);
         dinamicA = Vector3Add(dinamicA, vectorC);
         dinamicB = Vector3Add(dinamicB, vectorC);
         dinamicC = Vector3Add(dinamicC, vectorC);
 
-        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
-        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)));
+        DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)));
+        DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
+        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
     }
 }
 
