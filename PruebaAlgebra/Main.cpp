@@ -16,7 +16,7 @@ void SetNewMagnitude(Vector3& vector, float designedMagnitude);
 void CrossProduct(Vector3 vector1, Vector3 vector2, Vector3 vertex, Vector3& vectorPerp);
 void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
-void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput);
+void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput, float& perimeter, float& surface, float& volume);
 float CalculateScalarProduct(Vector3 vector1, Vector3 vector2);
 
 void main()
@@ -65,6 +65,9 @@ void main()
     while (!WindowShouldClose())
     {
         int key;
+        float perimeter{};
+        float surface{};
+        float volume{};
 
         CameraHandler(camera, cameraMode);
         BeginDrawing();
@@ -75,7 +78,7 @@ void main()
 
         BeginMode3D(camera);
 
-        DrawPyramid(startPos, vectorA, vectorB, vectorC, magnitudeC, userInput);
+        DrawPyramid(startPos, vectorA, vectorB, vectorC, magnitudeC, userInput, perimeter, surface, volume);
 
         EndMode3D();
 
@@ -285,12 +288,8 @@ void DrawInstructions()
     DrawText("Press key 9 = 1/9", textX, textY11, fontSize, textColor);
 }
 
-void GetArea()
-{
 
-}
-
-void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput)
+void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput, float& perimeter, float& surface, float& volume)
 {
     Vector3 transformX; //Es el desplazamiento para cada piso en x
     transformX.x = vectorA.x / userInput;
@@ -316,12 +315,8 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
     Vector3 dinamicC = Vector3Add(vectorA, vectorB);
 
     float floorQnty = userInput / 2; //Cantidad de veces que se repetirá el for que dibuja los pisos. 
-
-    //DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
-    //DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
-    //DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
     
-    float totalMagnitude{};
+    float actualMagnitude{};
 
     for (int i = 0; i < floorQnty; i++)
     {
@@ -329,18 +324,18 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
         DrawLine3D(Vector3Add(dinamicStartPos, (Vector3Scale(reductionStartPos, i))), Vector3Add(Vector3Add(dinamicStartPos, (Vector3Scale(reductionStartPos, i))), vectorC), PINK);
         DrawLine3D(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), Vector3Add(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), vectorC), PINK);
         DrawLine3D(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), Vector3Add(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), vectorC), PINK);
-        DrawLine3D(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), vectorC), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), vectorC));
+        DrawLine3D(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), vectorC), PINK);
+        
 
         DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        totalMagnitude += Vector3Distance(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i));
+        actualMagnitude = Vector3Distance(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i));
+        perimeter += ((actualMagnitude * 8.0f) + (magnitudeC * 4.0f));
+        surface += ((actualMagnitude * actualMagnitude) + ((actualMagnitude * 4.0f) * magnitudeC));
+        volume += ((actualMagnitude * actualMagnitude) * magnitudeC);
        
         DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
         DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)));
         DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
 
         dinamicStartPos = Vector3Add(dinamicStartPos, vectorC);
         dinamicA = Vector3Add(dinamicA, vectorC);
@@ -348,13 +343,11 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
         dinamicC = Vector3Add(dinamicC, vectorC);
 
         DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)));
         DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
         DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)));
         DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
-        totalMagnitude += Vector3Distance(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)));
     }
+
+
 }
 
