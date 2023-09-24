@@ -4,8 +4,6 @@
 
 using namespace std;
 
-//Hola
-
 void SetCamera(Camera& camera, Vector3 startPos);
 void ShowMenu(float magnitudeA);
 void CameraHandler(Camera3D& camera, int& cameraMode);
@@ -18,10 +16,11 @@ void GetVertical(Vector3 endPos, Vector3& vertical);
 void DrawInstructions();
 void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput, float& perimeter, float& surface, float& volume);
 float CalculateScalarProduct(Vector3 vector1, Vector3 vector2);
+void ShowFinalCalcResults(float perimeter, float surface, float volume);
 
 void main()
 {
-    srand(NULL);
+    SetRandomSeed(time(NULL));
 
     Vector3 startPos = { 0.0f, 0.0f, 0.0f };
 
@@ -40,11 +39,9 @@ void main()
     SetExitKey(27);
     InitWindow(800, 450, "Algebra TP2");
 
-
     Camera camera = { 0 };
     SetCamera(camera, startPos);
     int cameraMode = CAMERA_FIRST_PERSON;
-
 
     DisableCursor();
 
@@ -75,12 +72,13 @@ void main()
 
         ShowMenu(magnitudeA);
 
-
         BeginMode3D(camera);
 
         DrawPyramid(startPos, vectorA, vectorB, vectorC, magnitudeC, userInput, perimeter, surface, volume);
 
         EndMode3D();
+
+        ShowFinalCalcResults(perimeter, surface, volume);
 
         if (starting)
         {
@@ -132,13 +130,13 @@ void SetCamera(Camera& camera, Vector3 startPos)
 
     camera.target = startPos;
 }
+
 void ShowMenu(float magnitudeA)
 {
     Vector2 magnitudeTextPos = { 10, 30 };
     Vector2 vectorATextPos = { 10, 50 };
     Vector2 vectorBTextPos = { 10, 70 };
     Vector2 vectorCTextPos = { 10, 90 };
-
 
     DrawText(TextFormat("Vector A and B magnitude: %.2f", magnitudeA), magnitudeTextPos.x, magnitudeTextPos.y, 15, BLACK);
     DrawText("Vector A: RED", vectorATextPos.x, vectorATextPos.y, 15, BLACK);
@@ -288,7 +286,6 @@ void DrawInstructions()
     DrawText("Press key 9 = 1/9", textX, textY11, fontSize, textColor);
 }
 
-
 void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vectorC, float magnitudeC, float userInput, float& perimeter, float& surface, float& volume)
 {
     Vector3 transformX; //Es el desplazamiento para cada piso en x
@@ -296,23 +293,26 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
     transformX.y = vectorA.y / userInput;
     transformX.z = vectorA.z / userInput;
 
-    Vector3 transformY;
+    Vector3 transformY; //Es el desplazamiento para cada piso en y
     transformY.x = vectorB.x / userInput;
     transformY.y = vectorB.y / userInput;
     transformY.z = vectorB.z / userInput;
 
-    //...
+    //Es la reducción en diagonal desde el vértice correspondiente por cada piso
     Vector3 reductionStartPos = Vector3Add(transformX, transformY);
     Vector3 reductionA = Vector3Add(Vector3Scale(transformX, -1.0f), transformY);
     Vector3 reductionB = Vector3Subtract(transformX, transformY);
     Vector3 reductionC = Vector3Subtract(Vector3Scale(transformX, -1.0f), transformY);
-
 
     //Auxiliares para no modificar los valores originales
     Vector3 dinamicStartPos = startPos;
     Vector3 dinamicA = vectorA;
     Vector3 dinamicB = vectorB;
     Vector3 dinamicC = Vector3Add(vectorA, vectorB);
+
+    DrawLine3D(startPos, vectorA, RED); //Dibuja Vector A
+    DrawLine3D(startPos, vectorB, GREEN); //Dibuja Vector B
+    DrawLine3D(startPos, vectorC, BLUE); //Dibuja Vector C
 
     float floorQnty = userInput / 2; //Cantidad de veces que se repetirá el for que dibuja los pisos. 
     
@@ -325,7 +325,6 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
         DrawLine3D(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), Vector3Add(Vector3Add(dinamicA, (Vector3Scale(reductionA, i))), vectorC), PINK);
         DrawLine3D(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), Vector3Add(Vector3Add(dinamicB, (Vector3Scale(reductionB, i))), vectorC), PINK);
         DrawLine3D(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), Vector3Add(Vector3Add(dinamicC, (Vector3Scale(reductionC, i))), vectorC), PINK);
-        
 
         DrawLine3D(Vector3Add(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
         actualMagnitude = Vector3Distance(dinamicStartPos, Vector3Scale(reductionStartPos, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i));
@@ -347,7 +346,15 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
         DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicA, Vector3Scale(reductionA, i)), VIOLET);
         DrawLine3D(Vector3Add(dinamicC, Vector3Scale(reductionC, i)), Vector3Add(dinamicB, Vector3Scale(reductionB, i)), VIOLET);
     }
-
-
 }
 
+void ShowFinalCalcResults(float perimeter, float surface, float volume)
+{
+    Vector2 perimeterTextPos = { 600, 30 };
+    Vector2 surfaceTextPos = { 600, 50 };
+    Vector2 volumeTextPos = { 600, 70 };
+
+    DrawText(TextFormat("Pyramid Perimeter: %.2f", perimeter), perimeterTextPos.x, perimeterTextPos.y, 15, BLACK);
+    DrawText(TextFormat("Pyramid Surface: %.2f", surface), surfaceTextPos.x, surfaceTextPos.y, 15, BLACK);
+    DrawText(TextFormat("Pyramid Volume: %.2f", volume), volumeTextPos.x, volumeTextPos.y, 15, BLACK);
+}
