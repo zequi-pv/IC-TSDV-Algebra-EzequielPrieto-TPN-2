@@ -196,12 +196,12 @@ void CameraHandler(Camera3D& camera, int& cameraMode)
     UpdateCamera(&camera, cameraMode);
 }
 
-float CalculateScalarProduct(Vector3 vector1, Vector3 vector2)
-{
-    float scalarProduct = (vector1.x * vector2.x) + (vector1.y * vector2.y) + (vector1.z * vector2.z);
-
-    return scalarProduct;
-}
+//float CalculateScalarProduct(Vector3 vector1, Vector3 vector2)
+//{
+//    float scalarProduct = (vector1.x * vector2.x) + (vector1.y * vector2.y) + (vector1.z * vector2.z);
+//
+//    return scalarProduct;
+//}
 
 void GetMagnitude(Vector3 endPos, float& magnitude)
 {
@@ -241,11 +241,11 @@ void CrossProduct(Vector3 vector1, Vector3 vector2, Vector3 vertex, Vector3& vec
     vectorPerp.z = ((vector1.x * vector2.y) - (vector1.y * vector2.x)) + vertex.z;
 }
 
-void GetVertical(Vector3 endPos, Vector3& vertical)
-{
-    vertical.y = endPos.x;
-    vertical.x = -1 *endPos.y;
-}
+//void GetVertical(Vector3 endPos, Vector3& vertical)
+//{
+//    vertical.y = endPos.x;
+//    vertical.x = -1 *endPos.y;
+//}
 
 void DrawInstructions()
 {
@@ -321,7 +321,7 @@ void DrawPyramid(Vector3 startPos, Vector3 vectorA, Vector3 vectorB, Vector3 vec
 
     actualMagnitude = Vector3Distance(dinamicStartPos, Vector3Scale(reductionStartPos, 0)), Vector3Add(dinamicA, Vector3Scale(reductionA, 0));
 
-    surface += (actualMagnitude * actualMagnitude);
+    surface += (actualMagnitude * actualMagnitude) * 2;//////////perdon :)
 
     for (int i = 0; i < floorQnty; i++)
     {
