@@ -196,13 +196,6 @@ void CameraHandler(Camera3D& camera, int& cameraMode)
     UpdateCamera(&camera, cameraMode);
 }
 
-//float CalculateScalarProduct(Vector3 vector1, Vector3 vector2)
-//{
-//    float scalarProduct = (vector1.x * vector2.x) + (vector1.y * vector2.y) + (vector1.z * vector2.z);
-//
-//    return scalarProduct;
-//}
-
 void GetMagnitude(Vector3 endPos, float& magnitude)
 {
     magnitude = sqrt(pow(endPos.x, 2.0f) + pow(endPos.y, 2.0f) + pow(endPos.z, 2.0f));
@@ -240,12 +233,6 @@ void CrossProduct(Vector3 vector1, Vector3 vector2, Vector3 vertex, Vector3& vec
     vectorPerp.y = ((vector1.z * vector2.x) - (vector1.x * vector2.z)) + vertex.y;
     vectorPerp.z = ((vector1.x * vector2.y) - (vector1.y * vector2.x)) + vertex.z;
 }
-
-//void GetVertical(Vector3 endPos, Vector3& vertical)
-//{
-//    vertical.y = endPos.x;
-//    vertical.x = -1 *endPos.y;
-//}
 
 void DrawInstructions()
 {
